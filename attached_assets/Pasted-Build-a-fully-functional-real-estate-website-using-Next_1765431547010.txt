@@ -1,0 +1,118 @@
+Build a fully functional real estate website using Next.js and Supabase with the following detailed UI/UX and structural specifications:
+
+UI/UX Design:
+- Use a single font: Inter.
+- Color palette: white, light gray, elegant blue, subtle accent gold for most elements.
+- Design theme should look 3-dimensional with subtle shadows, layering, and depth effects on cards, buttons, and sections.
+- Generous whitespace for clean, uncluttered layouts.
+- Smooth hover effects on buttons, links, and cards with subtle elevation/shadow changes.
+- Slide animations for image carousels.
+- Soft fade and slide transitions between pages and for modals.
+- Loading animations for images and page sections.
+- Sticky top navigation bar that is initially transparent when the page is at the top.
+- After scrolling down, the navbar changes to a solid color with a smooth transition:
+  - Use a deep matte black (#111111) background with slight transparency (e.g. 0.95 opacity).
+  - Navbar text and icons change to white (#FFFFFF) when solid.
+- Mobile-first responsive design with collapsible hamburger menu.
+- Breadcrumb navigation on listings and property detail pages.
+- High contrast and accessible color combinations for text and interactive elements.
+
+Hero Section:
+- Use a **video background** in the hero section instead of a static image.
+- The video must be subtle and professional real estate related, such as the provided URL:
+  https://imgs.search.brave.com/sQB98zIaMNX3Y8iz6wJGBhqg-PSRgPf9TJ3tsnxqE6s/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YTEuZ2lwaHkuY29t/L21lZGlhL3YxLlky/bGtQVGM1TUdJM05q/RXhkR2htZWpOcU1Y/bHVPWGc0TTNSaU5E/TnhhbXczTUhOcmNH/dHVaV2RsTVdGbWRY/TjVPV3h3TVNabGNE/MTJNVjluYVdaelgz/TmxZWEpqYUNaamRE/MW4vS3pOcUdheHlu/SWRxV1U4TjNVLzIw/MC5naWY.gif
+- Overlay the video with a semi-transparent dark layer (e.g. black with 40% opacity) to ensure text readability.
+- Place hero text over the video, center aligned: large, bold uppercase heading with a subtle drop shadow for contrast.
+- Hero text examples: "BUILDING BESPOKE RESIDENCES WITH ULTIMATE DETAIL TO LUXURY".
+- Hero call-to-action buttons below text with clear contrast and hover effects.
+
+Pages and Structure:
+
+1. Home Page:
+- Hero section with video background and overlay as specified.
+- Quick search bar with inputs: location, property type, price range slider, area slider.
+- Featured listings carousel with smooth sliding animations and elevation hover effect on cards.
+- Prominent call-to-action buttons: "List Your Property" and "Contact an Agent."
+- Testimonials slider with client photos and quotes.
+- Blog/news snippet section.
+- Footer with contact info, newsletter signup form, social media links, quick navigation links.
+
+2. Listings Page:
+- Grid view of property cards with 3D-like card shadows and layering.
+- Each card includes: thumbnail carousel image, price, location, area, bedrooms, bathrooms, short description, "View Details" button.
+- Filters sidebar with these filter inputs:
+  - Location dropdown or autocomplete text input.
+  - Property type dropdown.
+  - Price range slider with minimum and maximum values displayed.
+  - Area range slider.
+  - Bedrooms and bathrooms dropdowns.
+  - Amenities checkboxes.
+- Sort options: price low→high, price high→low, newest first, most popular.
+- Pagination with clear numbered buttons below the grid.
+- Filters update the results dynamically without full page reload.
+
+3. Property Detail Page:
+- Large carousel of high-resolution images with zoom and fullscreen view.
+- Clear property summary header with price, property type, location, area, bedrooms, bathrooms, floor number, built-up/carpet area, availability status.
+- Detailed description area with amenities, features, surroundings.
+- Agent contact block with photo, name, phone/email, and "Schedule Viewing" contact form button.
+- Carousel for "Similar Properties" based on matching filters.
+- Social media share buttons.
+- Call-to-action buttons: "Contact Agent", "Save Listing".
+
+4. Agents Page:
+- Listing of agents with photo, name, contact info, number of properties managed.
+- Agent profile page: detailed bio, list of properties by agent, contact form.
+- Filter agents by location.
+
+5. User Dashboard (logged-in users):
+- Save and view favorite properties.
+- Recently viewed properties list.
+- Inquiry/contact history.
+- Profile management.
+
+6. Admin/Agent Dashboard:
+- Add, edit, delete property listings.
+- Drag-and-drop multi-image uploader connected to Supabase storage.
+- Mark listings as featured.
+- Manage inquiries.
+- Approve or reject listings.
+- Manage agent profiles.
+- View analytics for listings (views, inquiries, sales).
+
+7. Add/Edit Property Page:
+- Form inputs: title, description, location, property type, price, area, bedrooms, bathrooms, amenities.
+- Image uploader with drag-and-drop and preview.
+- Preview mode before publishing.
+- Validation on required fields and correct data types.
+
+8. Contact & Support Page:
+- Contact form: name, email, phone, message.
+- FAQ section with collapsible questions.
+- Optional live chat widget.
+
+9. Blog / Insights Page:
+- Blog listing with images, titles, dates, summaries.
+- Individual post pages with images, text, author info, comments.
+- Categories and tags for filtering.
+
+Features & Functionality:
+- Use Supabase for authentication, database, and image storage.
+- Dynamic search and filtering on listings page.
+- Wishlist/favorites system.
+- Notifications for saved properties and inquiries.
+- Lazy-loading for images.
+- Fully responsive and accessible.
+- SEO optimized with meta tags, alt texts, Open Graph tags.
+- Smooth page transitions and animations.
+- Clean, component-based, well-organized code structure.
+
+Additional Instructions:
+- Navbar must be transparent at the top of the page.
+- On scroll, navbar transitions smoothly to solid deep matte black (#111111) with 95% opacity.
+- Navbar text and icons switch to white (#FFFFFF) on scroll.
+- Hero section must have the provided video as background with a dark overlay.
+- The overall theme should feel 3-dimensional with shadows and layering, NOT flat.
+- Exclude Google Maps or any map integration.
+- Exclude dark/light mode toggle; keep consistent light mode design.
+- Provide fully commented, clean, production-ready Next.js and Supabase integrated code.
