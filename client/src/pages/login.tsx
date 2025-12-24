@@ -58,7 +58,7 @@ export default function LoginPage() {
         <div className="text-center mb-8">
           <Link href="/">
             <a className="text-3xl font-bold tracking-tight inline-block" data-testid="link-logo">
-              LUXE<span className="text-gold">ESTATES</span>
+              JW<span className="text-gold">REALTY</span>
             </a>
           </Link>
         </div>

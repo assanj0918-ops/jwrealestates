@@ -78,7 +78,7 @@ export default function SignupPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="text-3xl font-bold tracking-tight inline-block" data-testid="link-logo">
-            LUXE<span className="text-gold">ESTATES</span>
+            JW<span className="text-gold">REALTY</span>
           </Link>
 
         </div>
@@ -86,7 +86,7 @@ export default function SignupPage() {
         <Card className="shadow-xl">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Create Account</CardTitle>
-            <CardDescription>Join LuxeEstates and find your dream property</CardDescription>
+            <CardDescription>Join JWREALTY and find your dream property</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
