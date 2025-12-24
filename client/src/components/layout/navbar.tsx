@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 const navLinks = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/properties', label: 'Properties', icon: Building2 },
-  { href: '/agents', label: 'Agents', icon: Users },
+  { href: '/agents', label: 'About', icon: Users },
   { href: '/blog', label: 'Insights', icon: BookOpen },
   { href: '/contact', label: 'Contact', icon: Phone },
 ];
@@ -60,7 +60,7 @@ export function Navbar() {
             )}
             data-testid="link-logo"
           >
-            LUXE<span className="text-gold">ESTATES</span>
+            JW<span className="text-gold">REALTY</span>
           </Link>
 
           <div className="hidden lg:flex items-center gap-8">

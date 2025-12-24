@@ -8,6 +8,7 @@ interface AuthUser {
   fullName: string;
   role: 'user' | 'agent' | 'admin';
   avatarUrl?: string;
+  phone?: string;
 }
 
 interface AuthContextType {
@@ -27,14 +28,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSupabaseUser(session?.user ?? null);
-      if (session?.user) {
-        fetchUserProfile(session.user.id);
-      } else {
+    const initAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setSupabaseUser(session?.user ?? null);
+        if (session?.user) {
+          await fetchUserProfile(session.user.id);
+        } else {
+          setIsLoading(false);
+        }
+      } catch (err) {
+        console.error('Error initializing auth:', err);
         setIsLoading(false);
       }
-    });
+    };
+
+    initAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSupabaseUser(session?.user ?? null);
@@ -50,20 +59,69 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function fetchUserProfile(userId: string) {
+    console.log('Fetching user profile for ID:', userId);
+    setIsLoading(true);
+
     try {
-      const response = await fetch(`/api/users/${userId}`);
-      if (response.ok) {
-        const userData = await response.json();
+      // Query Supabase directly instead of API endpoint
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.warn('User not found in database, creating profile...', error);
+        
+        // Get auth user data
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        
+        if (authUser) {
+          // Create user profile in database
+          const { data: newUser, error: insertError } = await supabase
+            .from('users')
+            .insert({
+              id: authUser.id,
+              email: authUser.email!,
+              full_name: authUser.user_metadata?.full_name || authUser.user_metadata?.fullName || 'User',
+              role: 'user',
+              created_at: new Date().toISOString(),
+            })
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error('Failed to create user profile:', insertError);
+            setUser(null);
+            return;
+          }
+
+          console.log('User profile created successfully:', newUser);
+          
+          setUser({
+            id: newUser.id,
+            email: newUser.email,
+            fullName: newUser.full_name,
+            role: newUser.role,
+            avatarUrl: newUser.avatar_url,
+            phone: newUser.phone,
+          });
+        }
+      } else {
+        console.log('User data received:', userData);
+        
         setUser({
           id: userData.id,
           email: userData.email,
-          fullName: userData.fullName,
+          fullName: userData.full_name,
           role: userData.role,
-          avatarUrl: userData.avatarUrl,
+          avatarUrl: userData.avatar_url,
+          phone: userData.phone,
         });
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
@@ -75,26 +133,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signUp(email: string, password: string, fullName: string) {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({ 
+      email, 
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+        }
+      }
+    });
     
-    if (error) {
-      return { error: error.message };
-    }
+    if (error) return { error: error.message };
 
     if (data.user) {
       try {
-        await fetch('/api/users', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+        // Insert user into database
+        const { error: insertError } = await supabase
+          .from('users')
+          .insert({
             id: data.user.id,
             email,
-            fullName,
+            full_name: fullName,
             role: 'user',
-          }),
-        });
+            created_at: new Date().toISOString(),
+          });
+
+        if (insertError) {
+          console.error('Failed to create user profile:', insertError);
+          return { error: 'Failed to create user profile' };
+        }
+
+        console.log('User profile created successfully');
       } catch (err) {
         console.error('Error creating user profile:', err);
+        return { error: 'Error creating user profile' };
       }
     }
 
@@ -116,8 +188,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 }

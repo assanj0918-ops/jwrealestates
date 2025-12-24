@@ -3,7 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { useParams, Link } from 'wouter';
 import {
   Heart, Share2, Bed, Bath, Maximize, Building2, Calendar, MapPin,
-  Phone, Mail, ChevronLeft, ChevronRight, Check, X, ZoomIn
+  Phone, Mail, ChevronLeft, ChevronRight, Check, ZoomIn
 } from 'lucide-react';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
@@ -26,8 +26,8 @@ import {
 } from '@/components/ui/breadcrumb';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/lib/auth-context';
-import { apiRequest, queryClient } from '@/lib/queryClient';
-import type { PropertyWithAgent, Property } from '@shared/schema';
+import { supabase } from '@/lib/supabase';
+import type { Property } from '@shared/schema';
 import { cn } from '@/lib/utils';
 
 export default function PropertyDetailPage() {
@@ -44,23 +44,105 @@ export default function PropertyDetailPage() {
     message: '',
   });
 
-  const { data: property, isLoading } = useQuery<PropertyWithAgent>({
-    queryKey: ['/api/properties', id],
+  // Fetch property
+  const { data: property, isLoading: propertyLoading } = useQuery({
+    queryKey: ['property', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('properties')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching property:', error);
+        throw error;
+      }
+      return data;
+    },
+    enabled: !!id,
   });
 
-  const { data: similarProperties } = useQuery<Property[]>({
-    queryKey: ['/api/properties', 'similar', id],
+  // Fetch agent details separately
+  const { data: agent, isLoading: agentLoading } = useQuery({
+    queryKey: ['agent', property?.agent_id],
+    queryFn: async () => {
+      if (!property?.agent_id) return null;
+      
+      const { data: agentData, error: agentError } = await supabase
+        .from('agents')
+        .select('id, specialization, user_id')
+        .eq('id', property.agent_id)
+        .single();
+
+      if (agentError) {
+        console.error('Error fetching agent:', agentError);
+        return null;
+      }
+
+      if (!agentData?.user_id) return null;
+
+      // Fetch user details
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('id, full_name, email, phone, avatar_url')
+        .eq('id', agentData.user_id)
+        .single();
+
+      if (userError) {
+        console.error('Error fetching user:', userError);
+        return null;
+      }
+
+      return {
+        ...agentData,
+        user: userData,
+      };
+    },
+    enabled: !!property?.agent_id,
+  });
+
+  // Fetch similar properties
+  const { data: similarProperties } = useQuery({
+    queryKey: ['similar-properties', property?.property_type, property?.city, id],
+    queryFn: async () => {
+      if (!property) return [];
+      
+      const { data, error } = await supabase
+        .from('properties')
+        .select('*')
+        .eq('property_type', property.property_type)
+        .eq('city', property.city)
+        .neq('id', id)
+        .limit(3);
+
+      if (error) {
+        console.error('Error fetching similar properties:', error);
+        return [];
+      }
+      return data || [];
+    },
     enabled: !!property,
   });
 
+  // Submit inquiry mutation
   const inquiryMutation = useMutation({
     mutationFn: async (data: typeof inquiryForm) => {
-      return apiRequest('POST', '/api/inquiries', {
-        ...data,
-        propertyId: id,
-        agentId: property?.agentId,
-        userId: user?.id,
-      });
+      const { error } = await supabase
+        .from('inquiries')
+        .insert({
+          property_id: id,
+          agent_id: property?.agent_id,
+          user_id: user?.id,
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          message: data.message,
+          status: 'pending',
+          created_at: new Date().toISOString(),
+        });
+
+      if (error) throw error;
     },
     onSuccess: () => {
       toast({
@@ -69,7 +151,8 @@ export default function PropertyDetailPage() {
       });
       setInquiryForm({ name: '', email: '', phone: '', message: '' });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Error sending inquiry:', error);
       toast({
         title: 'Error',
         description: 'Failed to send inquiry. Please try again.',
@@ -77,6 +160,8 @@ export default function PropertyDetailPage() {
       });
     },
   });
+
+  const isLoading = propertyLoading || agentLoading;
 
   if (isLoading) {
     return (
@@ -121,7 +206,6 @@ export default function PropertyDetailPage() {
   const currentImage = images[currentImageIndex] || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80';
   const amenities = (property.amenities as string[]) || [];
   const features = (property.features as string[]) || [];
-  const agent = property.agent;
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -197,7 +281,7 @@ export default function PropertyDetailPage() {
               )}
 
               <div className="absolute top-4 left-4 flex gap-2">
-                {property.isFeatured && (
+                {property.is_featured && (
                   <Badge className="bg-gold text-white border-0">Featured</Badge>
                 )}
                 <Badge
@@ -301,15 +385,15 @@ export default function PropertyDetailPage() {
                   <div className="flex items-center gap-2">
                     <Building2 className="h-5 w-5 text-primary" />
                     <div>
-                      <p className="font-semibold capitalize">{property.propertyType}</p>
+                      <p className="font-semibold capitalize">{property.property_type}</p>
                       <p className="text-xs text-muted-foreground">Type</p>
                     </div>
                   </div>
-                  {property.yearBuilt && (
+                  {property.year_built && (
                     <div className="flex items-center gap-2">
                       <Calendar className="h-5 w-5 text-primary" />
                       <div>
-                        <p className="font-semibold">{property.yearBuilt}</p>
+                        <p className="font-semibold">{property.year_built}</p>
                         <p className="text-xs text-muted-foreground">Built</p>
                       </div>
                     </div>
@@ -370,12 +454,12 @@ export default function PropertyDetailPage() {
                 <Card className="shadow-lg" data-testid="agent-card">
                   <CardHeader className="text-center">
                     <Avatar className="h-20 w-20 mx-auto mb-4 ring-4 ring-gold/20">
-                      <AvatarImage src={agent.user?.avatarUrl || ''} />
+                      <AvatarImage src={agent.user?.avatar_url || ''} />
                       <AvatarFallback className="bg-primary text-white text-xl">
-                        {agent.user?.fullName?.charAt(0) || 'A'}
+                        {agent.user?.full_name?.charAt(0) || 'A'}
                       </AvatarFallback>
                     </Avatar>
-                    <CardTitle>{agent.user?.fullName}</CardTitle>
+                    <CardTitle>{agent.user?.full_name}</CardTitle>
                     <p className="text-muted-foreground text-sm">{agent.specialization}</p>
                   </CardHeader>
                   <CardContent className="space-y-4">

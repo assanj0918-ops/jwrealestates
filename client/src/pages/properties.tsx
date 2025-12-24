@@ -7,6 +7,8 @@ import { Footer } from '@/components/layout/footer';
 import { PropertyCard } from '@/components/property/property-card';
 import { FilterSidebar, defaultFilters, type FilterState } from '@/components/property/filter-sidebar';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/lib/supabase'; // make sure to import supabase at the top
+
 import {
   Select,
   SelectContent,
@@ -66,10 +68,54 @@ export default function PropertiesPage() {
     params.set('page', currentPage.toString());
     return params.toString();
   };
+const fetchProperties = async () => {
+  const from = (currentPage - 1) * ITEMS_PER_PAGE;
+  const to = from + ITEMS_PER_PAGE - 1;
 
-  const { data, isLoading } = useQuery<{ properties: Property[]; total: number }>({
-    queryKey: ['/api/properties', buildQueryString()],
-  });
+  let query = supabase
+    .from('properties')
+    .select('*', { count: 'exact' }) // needed for total count
+    .range(from, to);
+
+  // Filters
+  if (filters.location) query = query.ilike('location', `%${filters.location}%`);
+  if (filters.propertyType && filters.propertyType !== 'any')
+    query = query.eq('property_type', filters.propertyType);
+  if (filters.minPrice) query = query.gte('price', filters.minPrice);
+  if (filters.maxPrice && filters.maxPrice < 10000000) query = query.lte('price', filters.maxPrice);
+  if (filters.minArea) query = query.gte('area', filters.minArea);
+  if (filters.maxArea && filters.maxArea < 20000) query = query.lte('area', filters.maxArea);
+  if (filters.bedrooms) query = query.eq('bedrooms', filters.bedrooms);
+  if (filters.bathrooms) query = query.eq('bathrooms', filters.bathrooms);
+
+  // Sorting
+  switch (sortBy) {
+    case 'newest':
+      query = query.order('created_at', { ascending: false });
+      break;
+    case 'price-low':
+      query = query.order('price', { ascending: true });
+      break;
+    case 'price-high':
+      query = query.order('price', { ascending: false });
+      break;
+    case 'popular':
+      query = query.order('view_count', { ascending: false });
+      break;
+  }
+
+  const { data, error, count } = await query;
+
+  if (error) throw error;
+
+  return { properties: data || [], total: count || 0 };
+};
+const { data, isLoading } = useQuery({
+  queryKey: ['properties', filters, sortBy, currentPage],
+  queryFn: fetchProperties,
+  keepPreviousData: true,
+});
+
 
   const properties = data?.properties || [];
   const totalPages = Math.ceil((data?.total || 0) / ITEMS_PER_PAGE);

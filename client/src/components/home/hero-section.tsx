@@ -74,8 +74,8 @@ export function HeroSection() {
             className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white uppercase tracking-wide mb-6 drop-shadow-lg"
             data-testid="text-hero-title"
           >
-            Building Bespoke Residences With Ultimate Detail To{' '}
-            <span className="text-gold">Luxury</span>
+            If You Want To Go Fast, Go Alone. If You Want To Go Far, Go {' '}
+            <span className="text-gold">Together</span>
           </h1>
           <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto mb-8 drop-shadow-md" data-testid="text-hero-subtitle">
             Discover extraordinary properties that redefine modern living. 

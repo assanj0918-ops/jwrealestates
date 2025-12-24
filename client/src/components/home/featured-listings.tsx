@@ -4,6 +4,7 @@ import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PropertyCard } from '@/components/property/property-card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { supabase } from '@/lib/supabase';
 import type { Property } from '@shared/schema';
 import { useRef, useState } from 'react';
 
@@ -11,8 +12,21 @@ export function FeaturedListings() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
+  const fetchFeaturedProperties = async () => {
+    const { data, error } = await supabase
+      .from('properties')
+      .select('*')
+      .eq('is_featured', true)
+      .order('created_at', { ascending: false })
+      .limit(6);
+
+    if (error) throw error;
+    return data || [];
+  };
+
   const { data: properties, isLoading } = useQuery<Property[]>({
-    queryKey: ['/api/properties', 'featured'],
+    queryKey: ['properties', 'featured'],
+    queryFn: fetchFeaturedProperties,
   });
 
   const toggleFavorite = (id: string) => {

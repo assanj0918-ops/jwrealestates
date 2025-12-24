@@ -44,7 +44,7 @@ export function Footer() {
               className="text-2xl font-bold tracking-tight mb-6 inline-block"
               data-testid="link-footer-logo"
             >
-              LUXE<span className="text-gold">ESTATES</span>
+              JW<span className="text-gold">REALTY</span>
             </Link>
             <p className="text-white/70 mb-6 leading-relaxed">
               Building bespoke residences with ultimate attention to detail and luxury. 
@@ -138,8 +138,8 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-gold flex-shrink-0" />
-                <a href="mailto:info@luxeestates.com" className="text-white/70 hover:text-gold transition-colors">
-                  info@luxeestates.com
+                <a href="mailto:info@jwrealty.com" className="text-white/70 hover:text-gold transition-colors">
+                  info@jwrealty.com
                 </a>
               </li>
             </ul>
@@ -170,7 +170,7 @@ export function Footer() {
 
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-white/50 text-sm">
-            &copy; {new Date().getFullYear()} LuxeEstates. All rights reserved.
+            &copy; {new Date().getFullYear()} JWREALTY. All rights reserved.
           </p>
           <div className="flex gap-6">
             <a href="#" className="text-white/50 hover:text-white text-sm transition-colors">

@@ -77,11 +77,10 @@ export default function SignupPage() {
     >
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/">
-            <a className="text-3xl font-bold tracking-tight inline-block" data-testid="link-logo">
-              LUXE<span className="text-gold">ESTATES</span>
-            </a>
+          <Link href="/" className="text-3xl font-bold tracking-tight inline-block" data-testid="link-logo">
+            LUXE<span className="text-gold">ESTATES</span>
           </Link>
+
         </div>
 
         <Card className="shadow-xl">
@@ -167,10 +166,8 @@ export default function SignupPage() {
 
             <div className="mt-6 text-center text-sm text-muted-foreground">
               Already have an account?{' '}
-              <Link href="/login">
-                <a className="text-primary font-medium hover:underline" data-testid="link-login">
-                  Sign in
-                </a>
+              <Link href="/login" className="text-primary font-medium hover:underline" data-testid="link-login">
+                Sign in
               </Link>
             </div>
           </CardContent>

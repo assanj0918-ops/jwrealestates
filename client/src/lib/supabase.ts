@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = 'https://xgmrnivsmnkgbqynuias.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhnbXJuaXZzbW5rZ2JxeW51aWFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0MjI5MzIsImV4cCI6MjA4MDk5ODkzMn0.ocpvprgotU-9FTtJ88Hs6DNw-tISL2-1-HYuTKwf1zU';
 
 // Create a mock client for development when Supabase is not configured
 const createMockClient = () => ({
